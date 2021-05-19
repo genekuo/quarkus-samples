@@ -5,7 +5,7 @@ https://docs.okd.io/3.11/minishift/getting-started/setting-up-virtualization-env
 minishift start --vm-driver virtualbox
 
 The server is accessible via web console at:
-    https://192.168.99.101:8443/console
+    https://[IP]:8443/console
 
 You are logged in as:
     User:     developer
@@ -47,7 +47,7 @@ oc expose svc/quarkus-hello-okd
 
 oc get route quarkus-hello-okd -o jsonpath --template="{.spec.host}"
 
-curl http://quarkus-hello-okd-quarkus-hello-okd.192.168.99.101.nip.io/getContainerId
+curl http://quarkus-hello-okd-quarkus-hello-okd.[IP].nip.io/getContainerId
 
 oc set resources dc/quarkus-hello-okd --limits=memory=50M
 
@@ -55,7 +55,7 @@ oc describe dc/quarkus-hello-okd
 
 oc scale --replicas=10 dc/quarkus-hello-okd
 
-for i in {1..100}; do curl quarkus-hello-okd-quarkus-hello-okd.192.168.99.101.nip.io/getContainerId ; echo ""; done;
+for i in {1..100}; do curl quarkus-hello-okd-quarkus-hello-okd.[IP].nip.io/getContainerId ; echo ""; done;
 
 oc delete all --all
 
