@@ -1,0 +1,25 @@
+mvn io.quarkus:quarkus-maven-plugin:1.9.2.Final:create \
+-DprojectGroupId=demo.quarkus.customer \
+-DprojectArtifactId=customer-web \
+-DclassName="demo.quarkus.customer.CustomerService" \
+-Dpath="/customer"
+
+mvn clean package
+
+mvn quarkus:dev
+
+browser: http://localhost:8080
+
+mvn clean package -Pnative -Dquarkus.native.container-build=true
+
+oc new-project quarkus-customer-service
+
+oc new-build --binary --name=quarkus-customer-service -l app=quarkus-customer-service
+
+oc patch bc/quarkus-customer-service -p '{"spec":{"strategy":{"dockerStrategy":{"dockerfilePath":"src/main/docker/Dockerfile.native"}}}}'
+
+oc start-build quarkus-customer-service --from-dir=. --follow
+
+oc new-app --image-stream=quarkus-customer-service:latest
+
+oc expose svc/quarkus-customer-service

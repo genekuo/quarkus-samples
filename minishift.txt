@@ -1,0 +1,62 @@
+brew install minishift
+
+https://docs.okd.io/3.11/minishift/getting-started/setting-up-virtualization-environment.html#setting-up-virtualbox-driver
+
+minishift start --vm-driver virtualbox
+
+The server is accessible via web console at:
+    https://192.168.99.101:8443/console
+
+You are logged in as:
+    User:     developer
+    Password: <any value>
+
+To login as administrator:
+    oc login -u system:admin
+
+export PATH=$PATH:~/.minishift/cache/oc/v3.11.0/darwin
+
+minishift console
+
+oc new-project quarkus-hello-okd
+
+  You can add applications to this project with the 'new-app' command. For example, try:
+      oc new-app centos/ruby-25-centos7~https://github.com/sclorg/ruby-ex.git
+  to build a new example application in Ruby.
+
+oc new-build --binary --name=quarkus-hello-okd -l app=quarkus-hello-okd
+
+oc get bc
+
+oc patch bc/quarkus-hello-okd -p '{"spec":{"strategy":{"dockerStrategy":{"dockerfilePath":"src/main/docker/Dockerfile.native"}}}}'
+
+oc describe bc/quarkus-hello-okd
+
+COPY --chown=1001:root target/*-runner /work/application
+  changes to
+COPY target/*-runner /work/application
+RUN chown 1001:root /work/application
+
+oc start-build quarkus-hello-okd --from-dir=. --follow
+
+oc get is
+
+oc new-app --image-stream=quarkus-hello-okd:latest
+
+oc expose svc/quarkus-hello-okd
+
+oc get route quarkus-hello-okd -o jsonpath --template="{.spec.host}"
+
+curl http://quarkus-hello-okd-quarkus-hello-okd.192.168.99.101.nip.io/getContainerId
+
+oc set resources dc/quarkus-hello-okd --limits=memory=50M
+
+oc describe dc/quarkus-hello-okd
+
+oc scale --replicas=10 dc/quarkus-hello-okd
+
+for i in {1..100}; do curl quarkus-hello-okd-quarkus-hello-okd.192.168.99.101.nip.io/getContainerId ; echo ""; done;
+
+oc delete all --all
+
+minishift stop

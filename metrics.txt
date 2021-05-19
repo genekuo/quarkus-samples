@@ -1,0 +1,19 @@
+mvn io.quarkus:quarkus-maven-plugin:1.9.2.Final:create \
+-DprojectGroupId=demo.quarkus.metrics \
+-DprojectArtifactId=metrics \
+-DclassName="demo.quarkus.metrics.CustomerEndpoint" \
+-Dpath="/customers"
+
+docker run --ulimit memlock=-1:-1 -it --rm=true --memory-swappiness=0 --name quarkus_test -e POSTGRES_USER=quarkus -e POSTGRES_PASSWORD=quarkus -e POSTGRES_DB=quarkusdb -p 5432:5432 postgres
+
+mvn compile test
+
+mvn compile quarkus:dev
+
+http://localhost:8080/
+
+http://localhost:8080/metrics
+
+curl http://localhost:8080/metrics/application
+
+Unable to export metric demo_quarkus_metrics_OrderEndpoint_peakOfOrders

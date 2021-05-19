@@ -1,0 +1,48 @@
+mvn io.quarkus:quarkus-maven-plugin:1.9.2.Final:create \
+-DprojectGroupId=demo.quarkus.health \
+-DprojectArtifactId=health \
+-DclassName="demo.quarkus.health.DBHealthCheck" \
+-Dpath="/health"
+
+docker run --ulimit memlock=-1:-1 -it --rm=true --memory-swappiness=0 --name quarkus_test -e POSTGRES_USER=quarkus -e POSTGRES_PASSWORD=quarkus -e POSTGRES_DB=quarkusdb -p 5432:5432 postgres
+
+mvn compile quarkus:dev
+
+curl http://localhost:8080/health
+
+curl http://localhost:8080/health/ready
+
+curl http://localhost:8080/health/live
+
+mvn clean package -Pnative -Dquarkus.native.container-build=true -DskipTests=true
+
+oc new-project quarkus-microprofile
+
+oc new-app -e POSTGRESQL_USER=quarkus -e POSTGRESQL_PASSWORD=quarkus -e POSTGRESQL_DATABASE=quarkusdb postgresql
+
+oc new-build --binary --name=quarkus-microprofile -l app=quarkus-microprofile
+
+oc patch bc/quarkus-microprofile -p '{"spec":{"strategy":{"dockerStrategy":{"dockerfilePath":"src/main/docker/Dockerfile.native"}}}}'
+
+oc start-build quarkus-microprofile --from-dir=. --follow
+
+oc new-app --image-stream=quarkus-microprofile:latest
+
+oc expose svc/quarkus-microprofile
+
+(in console)
+Deployment Configuration | Edit Health Checks
+Path: health/ready
+Port: 8080
+Initial Delay: 3
+Timeout: 1
+
+oc get pods
+
+oc rsh quarkus-microprofile-1-xxxxx
+
+touch /tmp/tmp.lck
+
+oc get events
+
+oc delete all --all
