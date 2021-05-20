@@ -1,0 +1,18 @@
+mvn io.quarkus:quarkus-maven-plugin:1.9.2.Final:create \
+-DprojectGroupId=demo.quarkus.https.customer \
+-DprojectArtifactId=https-demo \
+-DclassName="demo.quarkus.https.customer.CustomerEndpoint" \
+-Dpath="/customers"
+
+docker run --ulimit memlock=-1:-1 \
+  -it --rm=true --memory-swappiness=0 --name quarkus_test \
+  -e POSTGRES_USER=quarkus -e POSTGRES_PASSWORD=quarkus \
+  -e POSTGRES_DB=quarkusdb -p 5432:5432 postgres
+
+(optional) openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+
+keytool -genkey -keyalg RSA -alias quarkus -keystore keystore.jks -storepass password -validity 365 -keysize 2048
+
+mvn compile quarkus:dev
+
+on Chronme, type: thisisunsafe
