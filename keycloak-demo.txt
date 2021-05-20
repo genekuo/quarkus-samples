@@ -1,0 +1,38 @@
+mvn io.quarkus:quarkus-maven-plugin:1.9.2.Final:create \
+-DprojectGroupId=demo.quarkus.keycloak \
+-DprojectArtifactId=keycloak-demo \
+-DclassName="demo.quarkus.keycloak.CustomerEndpoint" \
+-Dpath="/customers"
+
+docker run --ulimit memlock=-1:-1 \
+  -it --rm=true --memory-swappiness=0 --name quarkus_test \
+  -e POSTGRES_USER=quarkus -e POSTGRES_PASSWORD=quarkus \
+  -e POSTGRES_DB=quarkusdb -p 5432:5432 postgres
+
+(make sure docker storage is enough)
+docker run --rm  \
+   --name keycloak \
+   -e KEYCLOAK_USER=admin \
+   -e KEYCLOAK_PASSWORD=admin \
+   -p 8180:8180 \
+   -it quay.io/keycloak/keycloak:7.0.1 \
+   -b 0.0.0.0 \
+   -Djboss.http.port=8180 \
+   -Dkeycloak.profile.feature.upload_scripts=enabled
+
+   optional: (-e KEYCLOAK_IMPORT=/tmp/quarkus-realm.json  -v /tmp/quarkus-realm.json:/tmp/quarkus-realm.json \)
+
+http://localhost:8180
+login: admin/admin
+top left: Add realm | import quarkus-realm.json | Create
+Roles:
+Users: View all users | Click a user | Role Mappings
+Clients: quarkus-client | Credentials
+
+mvn compile test
+
+
+curl -X POST http://localhost:8180/auth/realms/quarkus-realm/protocol/openid-connect/token \
+  --user quarkus-client:mysecret \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -d 'username=test&password=test&grant_type=password'
