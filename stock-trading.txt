@@ -1,0 +1,16 @@
+mvn io.quarkus:quarkus-maven-plugin:1.13.4.Final:create \
+  -DprojectGroupId=demo.quarkus.stock.kafka \
+  -DprojectArtifactId=stock-trading \
+  -DclassName="demo.quarkus.stock.kafka.QuoteEndpoint" \
+  -Dpath="/quote" \
+  -Dextensions="resteasy,resteasy-jsonb,smallrye-reactive-messaging-kafka"
+
+docker-compose --version
+
+docker-compose up
+
+mvn install quarkus:dev
+
+docker stop $(docker ps -a -q)
+
+docker ps --format '{{.Names}}'
