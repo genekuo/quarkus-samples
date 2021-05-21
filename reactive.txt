@@ -1,0 +1,18 @@
+mvn io.quarkus:quarkus-maven-plugin:1.13.4.Final:create \
+  -DprojectGroupId=demo.quarkus.reactive \
+  -DprojectArtifactId=reactive \
+  -DclassName="demo.quarkus.reactive.ReactiveGreetingResource" \
+  -Dpath="/hello" \
+  -Dextensions="resteasy-reactive"
+
+mvn compile quarkus:dev
+
+http://localhost:8080
+
+curl http://localhost:8080/hello
+
+curl http://localhost:8080/hello/greeting/gene
+
+curl http://localhost:8080/hello/greetings/3/neo
+
+curl -N http://localhost:8080/hello/stream/5/neo

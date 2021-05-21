@@ -4,6 +4,12 @@ mvn io.quarkus:quarkus-maven-plugin:1.9.2.Final:create \
 -DclassName="demo.quarkus.reactive.CustomerEndpoint" \
 -Dpath="/customers"
 
+mvn io.quarkus:quarkus-maven-plugin:1.13.4.Final:create \
+-DprojectGroupId=demo.quarkus.reactive \
+-DprojectArtifactId=reactive-sql \
+-DclassName="demo.quarkus.reactive.CustomerEndpoint" \
+-Dpath="/customers"
+
 docker run --ulimit memlock=-1:-1 \
   -it --rm=true --memory-swappiness=0 --name quarkus_test \
   -e POSTGRES_USER=quarkus -e POSTGRES_PASSWORD=quarkus \

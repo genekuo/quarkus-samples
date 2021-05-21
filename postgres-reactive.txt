@@ -1,0 +1,32 @@
+mvn io.quarkus:quarkus-maven-plugin:1.13.4.Final:create \
+  -DprojectGroupId=demo.quarkus.postgres.reactive \
+  -DprojectArtifactId=postgres-reactive \
+  -DclassName="demo.quarkus.postgres.reactive.FruitResource" \
+  -Dpath="/fruits" \
+  -Dextensions="resteasy-reactive,resteasy-reactive-jackson,reactive-pg-client"
+
+
+docker run --ulimit memlock=-1:-1 -it --rm=true --memory-swappiness=0 \
+   --name postgres-quarkus-reactive -e POSTGRES_USER=quarkus_test \
+   -e POSTGRES_PASSWORD=quarkus_test -e POSTGRES_DB=quarkus_test \
+   -p 5432:5432 postgres:11.2
+
+mvn compile quarkus:dev
+
+curl -v http://localhost:8080/fruits
+curl -v http://localhost:8080/fruits/1
+curl -v -X POST -H "Content-Type: application/json" \
+  -d '{"name":"Apple"}' \
+  http://localhost:8080/fruits
+
+curl -v -X PUT -H "Content-Type: application/json" \
+  -d '{"id":"2", "name":"Banana"}' \
+  http://localhost:8080/fruits/2
+
+curl -v -X DELETE http://localhost:8080/fruits/4
+
+docker ps
+docker exec -it 3569755bc603 /bin/bash
+psql -d quarkus_test -U quarkus_test
+\dt
+select * from fruits;
