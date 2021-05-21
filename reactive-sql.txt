@@ -1,0 +1,35 @@
+mvn io.quarkus:quarkus-maven-plugin:1.9.2.Final:create \
+-DprojectGroupId=demo.quarkus.reactive \
+-DprojectArtifactId=reactive-sql \
+-DclassName="demo.quarkus.reactive.CustomerEndpoint" \
+-Dpath="/customers"
+
+docker run --ulimit memlock=-1:-1 \
+  -it --rm=true --memory-swappiness=0 --name quarkus_test \
+  -e POSTGRES_USER=quarkus -e POSTGRES_PASSWORD=quarkus \
+  -e POSTGRES_DB=quarkusdb -p 5432:5432 postgres
+
+
+mvn compile quarkus:dev
+
+http://localhost:8080
+
+curl http://localhost:8080/customers
+
+curl http://localhost:8080/customers/20
+
+curl -v -X POST -H "Content-Type: application/json" \
+  -d '{"name":"Bill","surname":"John"}' \
+  http://localhost:8080/customers
+
+curl -v -X PUT -H "Content-Type: application/json" \
+  -d '{"id":20,"name":"Tom","surname":"Chris"}' \
+  http://localhost:8080/customers
+
+curl -v -X DELETE http://localhost:8080/customers?id=22
+
+docker ps
+docker exec -it 79cc5cd70d8d /bin/bash
+psql -d quarkusdb -U quarkus
+\dt
+select * from customer;

@@ -12,6 +12,7 @@ docker run --ulimit memlock=-1:-1 \
 (optional) openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
 
 keytool -genkey -keyalg RSA -alias quarkus -keystore keystore.jks -storepass password -validity 365 -keysize 2048
+put keystore.jks in project root or resources folder?
 
 mvn compile quarkus:dev
 
